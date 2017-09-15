@@ -65,7 +65,8 @@ class Biot:
       elif self.y < self.size:
          self.y = 2*self.size - self.y
          self.angle = math.pi - self.angle
-
+   def draw(self, screen):
+      pygame.draw.circle(screen, self.color, [int(self.x),int(self.y)], self.size, 4)
 
 def collide(p1, p2):
    dx = p1.x - p2.x
@@ -158,8 +159,7 @@ def main():
       ################################################################
       screen.fill(BLACK)      # Set the screen background
       for ball in biot_List:
-         pygame.draw.circle(screen, ball.color, [int(ball.x),int(ball.y)], ball.size, 4)
-
+         ball.draw(screen)
       # --- Wrap-up
       clock.tick(60)			   # Limit to 60 frames per second
       pygame.display.flip() 	# update the screen with what we've drawn.
