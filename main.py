@@ -15,6 +15,8 @@ ScrWid = 1000
 ScrHeight = 600
 BALL_SIZE = 25
 elasticity = 1.0
+MaxSpeed = 5
+LegSegs = 6
 
 ########################################################################
 ### Code Begin
@@ -31,21 +33,26 @@ WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE  = (0,0,255)
-Colors = [RED,(255,163,0),(255,255,0),GREEN,BLUE,WHITE]
+Colors = [RED,GREEN,GREEN,BLUE,WHITE]
 ########################################################################
 ### Definitions
 ########################################################################
 class Biot:    
    ###Class to keep track of a ball's location and vector.
    def __init__(self):
-      self.size  = BALL_SIZE
+      self.size = BALL_SIZE
+      self.size = random.randint(15,30)
       self.x = random.randrange(self.size, ScrWid - self.size)
       self.y = random.randrange(self.size, ScrHeight - self.size)
-      self.color = random.choice(Colors)
       #		self.speed = random.randrange(1, 3)
       self.speed = 3
       self.angleMove = random.uniform(0, math.pi*2)
       self.angleRot = random.uniform(0, math.pi*2)
+      self.angleSeg = []
+      self.color = []
+      for i in range(0,LegSegs):
+         self.angleSeg.append(random.uniform(0, math.pi*2))
+         self.color.append(random.choice(Colors))
       self.symmetry = random.randint(3, 9)
 	  
    def move(self):
@@ -55,11 +62,11 @@ class Biot:
    def bounce(self):
       if self.x > ScrWid - self.size:
          self.x = 2*(ScrWid - self.size) - self.x
-         self.angleMove = - self.angleMove
+         self.angleMove = -self.angleMove
 
       elif self.x < self.size:
          self.x = 2*self.size - self.x
-         self.angleMove = - self.angleMove
+         self.angleMove = -self.angleMove
 
       if self.y > ScrHeight - self.size:
          self.y = 2*(ScrHeight - self.size) - self.y
@@ -71,11 +78,16 @@ class Biot:
          
    def draw(self, screen):
       self.angleRot += 0.03
-      #pygame.draw.circle(screen, self.color, [int(self.x),int(self.y)], self.size, 4)
-      for i in range(0,self.symmetry):
-         newX = int(self.x + self.size * math.sin(self.angleRot + (2 * math.pi * i)/self.symmetry))
-         newY = int(self.y + self.size * math.cos(self.angleRot + (2 * math.pi * i)/self.symmetry))
-         pygame.draw.lines(screen, self.color, False, [(self.x,self.y), (newX, newY)], 2)
+      pygame.draw.circle(screen, self.color[LegSegs-1], [int(self.x),int(self.y)], self.size, 1)
+      for i in range(0,self.symmetry):    #Draw Leg
+         stopX = self.x
+         stopY = self.y
+         for j in range(0,LegSegs):             #Draw Leg Segment
+            startX = stopX
+            startY = stopY
+            stopX = (startX + 1.8*self.size/LegSegs * math.sin(self.angleRot + self.angleSeg[j] + (2*math.pi*i)/self.symmetry))
+            stopY = (startY + 1.8*self.size/LegSegs * math.cos(self.angleRot + self.angleSeg[j] + (2*math.pi*i)/self.symmetry))
+            pygame.draw.aalines(screen, self.color[j], False, [(startX, startY), (stopX, stopY)], 2)
 
 def collide(p1, p2):
    dx = p1.x - p2.x
@@ -90,10 +102,10 @@ def collide(p1, p2):
       angle2 = 2*tangent - p2.angleMove
       speed1 = p2.speed*elasticity
       speed2 = p1.speed*elasticity
-      if speed1 > 5:
-         speed1 = 5
-      if speed2 > 5:
-         speed1 = 5
+      if speed1 > MaxSpeed:
+         speed1 = MaxSpeed
+      if speed2 > MaxSpeed:
+         speed1 = MaxSpeed
 
       (p1.angleMove, p1.speed) = (angle1, speed1)
       (p2.angleMove, p2.speed) = (angle2, speed2)
@@ -102,29 +114,35 @@ def collide(p1, p2):
       p1.y -= math.cos(angle)
       p2.x -= math.sin(angle)
       p2.y += math.cos(angle)
-      p1.angleRot +=  .6
-      p2.angleRot +=  .6
+      p1.angleRot += .6
+      p2.angleRot += .6
 
 def findBiot(biots, x, y):
     for p in biots:
         if math.hypot(p.x-x, p.y-y) <= p.size:
             return p
     return None
+    
 ########################################################################
 ### Main Code
 ########################################################################
 def main():
    pygame.init()
    size = [ScrWid, ScrHeight]
-   screen = pygame.display.set_mode(size)
-   pygame.display.set_caption("Bouncing Balls")
+   screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
+   pygame.display.set_caption("Pymordial Life")
    done = False
    selected_biot = None
    clock = pygame.time.Clock()    # Manage screen updates
 
+   ####################################################################
+   ### Font
+   ####################################################################
+   pygame.font.init() # you have to call this at the start, 
+   myfont = pygame.font.SysFont('Courier', 24)
 
    biot_List = []
-   for i in range(0,30):
+   for i in range(0,50):
       biot_List.append(Biot())
 
    ####################################################################
@@ -142,13 +160,23 @@ def main():
                biot_List.append(Biot())
             elif event.key == pygame.K_d:
                del biot_List[0]
+            elif (event.key == pygame.K_q) or (event.key == pygame.K_ESCAPE):
+               done = True
+            elif event.key == pygame.K_UP:
+               #MaxSpeed += 1
+               print MaxSpeed
+            elif event.key == pygame.K_DOWN:
+               MaxSpeed -= 1
+            else:
+               pass
          elif event.type == pygame.MOUSEBUTTONDOWN:
             (mouseX, mouseY) = pygame.mouse.get_pos()
             selected_biot = findBiot(biot_List, mouseX, mouseY)
          elif event.type == pygame.MOUSEBUTTONUP:
             selected_biot = None
-      
-       
+         else:
+            pass
+            
       ################################################################
       ### Game Logic
       ################################################################
@@ -171,10 +199,12 @@ def main():
       screen.fill(BLACK)      # Set the screen background
       for ball in biot_List:
          ball.draw(screen)
+         outText = "Biots:" + str(len(biot_List))
+         textsurface = myfont.render(outText, True, (0, 0, 255)) #render
       # --- Wrap-up
       clock.tick(60)			   # Limit to 60 frames per second
+      screen.blit(textsurface,(0,0))  #Draw text
       pygame.display.flip() 	# update the screen with what we've drawn.
-      
    #End While
    pygame.quit()
  
