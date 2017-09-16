@@ -15,7 +15,7 @@ ScrWid = 1000
 ScrHeight = 600
 BALL_SIZE = 25
 elasticity = 1.0
-MaxSpeed = 5
+MaxSpeed = 4
 LegSegs = 6
 
 ########################################################################
@@ -40,21 +40,36 @@ Colors = [RED,GREEN,GREEN,BLUE,WHITE]
 class Biot:    
    ###Class to keep track of a ball's location and vector.
    def __init__(self):
-      self.size = BALL_SIZE
-      self.size = random.randint(15,30)
-      self.x = random.randrange(self.size, ScrWid - self.size)
-      self.y = random.randrange(self.size, ScrHeight - self.size)
+      self.root = random.randint(40,60)
+      self.x = random.randrange(self.root, ScrWid - self.root)
+      self.y = random.randrange(self.root, ScrHeight - self.root)
+      self.energy = 200
       #		self.speed = random.randrange(1, 3)
       self.speed = 3
       self.angleMove = random.uniform(0, math.pi*2)
       self.angleRot = random.uniform(0, math.pi*2)
+         
+      ### Leg Section   
+      self.symmetry = random.randint(3, 9)
       self.angleSeg = []
       self.color = []
       for i in range(0,LegSegs):
          self.angleSeg.append(random.uniform(0, math.pi*2))
          self.color.append(random.choice(Colors))
-      self.symmetry = random.randint(3, 9)
-	  
+      
+      ### Calc Biot true size
+      self.size = 0
+      stopX = self.x
+      stopY = self.y
+      for j in range(0,LegSegs):             #Draw Leg Segment
+         startX = stopX                      #Start at last point
+         startY = stopY                      #Start at last point
+         stopX = startX + self.root/LegSegs * math.sin(self.angleRot + self.angleSeg[j] + (2*math.pi*i)/self.symmetry)
+         stopY = startY + self.root/LegSegs * math.cos(self.angleRot + self.angleSeg[j] + (2*math.pi*i)/self.symmetry)
+         hypot = math.hypot(self.x-stopX,self.y-stopY)
+         if hypot > self.size:
+            self.size = hypot
+
    def move(self):
       self.x += int(math.sin(self.angleMove) * self.speed)
       self.y -= int(math.cos(self.angleMove) * self.speed)
@@ -78,17 +93,24 @@ class Biot:
          
    def draw(self, screen):
       self.angleRot += 0.03
-      pygame.draw.circle(screen, self.color[LegSegs-1], [int(self.x),int(self.y)], self.size, 1)
-      for i in range(0,self.symmetry):    #Draw Leg
+      #pygame.draw.circle(screen, self.color[LegSegs-1], [int(self.x),int(self.y)], int(self.size), 1)
+      for i in range(0,self.symmetry):          #Draw Leg
          stopX = self.x
          stopY = self.y
          for j in range(0,LegSegs):             #Draw Leg Segment
-            startX = stopX
-            startY = stopY
-            stopX = (startX + 1.8*self.size/LegSegs * math.sin(self.angleRot + self.angleSeg[j] + (2*math.pi*i)/self.symmetry))
-            stopY = (startY + 1.8*self.size/LegSegs * math.cos(self.angleRot + self.angleSeg[j] + (2*math.pi*i)/self.symmetry))
+            startX = stopX                      #Start at last point
+            startY = stopY                      #Start at last point
+            stopX = (startX + self.root/LegSegs * math.sin(self.angleRot + self.angleSeg[j] + (2*math.pi*i)/self.symmetry))
+            stopY = (startY + self.root/LegSegs * math.cos(self.angleRot + self.angleSeg[j] + (2*math.pi*i)/self.symmetry))
             pygame.draw.aalines(screen, self.color[j], False, [(startX, startY), (stopX, stopY)], 2)
-
+   def energyCalc(self):
+      for j in range(0,LegSegs):
+         if self.color[j] == GREEN:
+            self.energy += 1
+         elif self.color[j] == RED:
+            self.energy -= 1
+      
+            
 def collide(p1, p2):
    dx = p1.x - p2.x
    dy = p1.y - p2.y
@@ -181,11 +203,21 @@ def main():
       ### Game Logic
       ################################################################
       for i, CurrBiot in enumerate(biot_List):
+         CurrBiot.energyCalc()
+         if CurrBiot.energy > 600:
+            CurrBiot.energy = 200
+            babyBiot = CurrBiot
+            babyBiot.x += 50
+            babyBiot.y += 50
+            #biot_List.append(babyBiot)
+         if CurrBiot.energy < 0:
+            #del biot_List[i]
+            pass
+            
          CurrBiot.move()
          CurrBiot.bounce()
          for Biot2 in biot_List[i+1:]:
             collide(CurrBiot, Biot2)
-
       if selected_biot:
          (mouseX, mouseY) = pygame.mouse.get_pos()
          dx = mouseX - selected_biot.x
