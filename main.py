@@ -203,7 +203,7 @@ def main():
       ### Game Logic
       ################################################################
       for i, CurrBiot in enumerate(biot_List):
-         CurrBiot.energyCalc()
+         #CurrBiot.energyCalc()
          if CurrBiot.energy > 600:
             CurrBiot.energy = 200
             babyBiot = CurrBiot
