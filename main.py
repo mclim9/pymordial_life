@@ -11,8 +11,8 @@
 ########################################################################
 ### User Inputs
 ########################################################################
-ScrWid = 1000
-ScrHeight = 600
+ScrWid = 1280
+ScrHeight = 800
 BALL_SIZE = 25
 elasticity = 1.0
 MaxSpeed = 4
@@ -24,6 +24,7 @@ LegSegs = 6
 import pygame
 import random
 import math
+import copy 		#for objects
 
 ########################################################################
 ### Define colors
@@ -103,11 +104,14 @@ class Biot:
             stopX = (startX + self.root/LegSegs * math.sin(self.angleRot + self.angleSeg[j] + (2*math.pi*i)/self.symmetry))
             stopY = (startY + self.root/LegSegs * math.cos(self.angleRot + self.angleSeg[j] + (2*math.pi*i)/self.symmetry))
             pygame.draw.aalines(screen, self.color[j], False, [(startX, startY), (stopX, stopY)], 2)
+
    def energyCalc(self):
       for j in range(0,LegSegs):
          if self.color[j] == GREEN:
-            self.energy += 1
+            self.energy += 2
          elif self.color[j] == RED:
+            self.energy -= 1
+         elif self.color[j] == BLUE:
             self.energy -= 1
       
             
@@ -138,6 +142,9 @@ def collide(p1, p2):
       p2.y += math.cos(angle)
       p1.angleRot += .6
       p2.angleRot += .6
+      p1.energy -= 40
+      p2.energy -= 40
+      
 
 def findBiot(biots, x, y):
     for p in biots:
@@ -151,7 +158,8 @@ def findBiot(biots, x, y):
 def main():
    pygame.init()
    size = [ScrWid, ScrHeight]
-   screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
+   #screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
+   screen = pygame.display.set_mode(size)
    pygame.display.set_caption("Pymordial Life")
    done = False
    selected_biot = None
@@ -203,15 +211,14 @@ def main():
       ### Game Logic
       ################################################################
       for i, CurrBiot in enumerate(biot_List):
-         #CurrBiot.energyCalc()
-         if CurrBiot.energy > 600:
+         CurrBiot.energyCalc()
+         if CurrBiot.energy > 1000:
             CurrBiot.energy = 200
-            babyBiot = CurrBiot
-            babyBiot.x += 50
-            babyBiot.y += 50
-            #biot_List.append(babyBiot)
+            BabyBiot = copy.copy(CurrBiot)
+            BabyBiot.x += 40
+            biot_List.append(BabyBiot)
          if CurrBiot.energy < 0:
-            #del biot_List[i]
+            del biot_List[i]
             pass
             
          CurrBiot.move()
@@ -234,7 +241,7 @@ def main():
          outText = "Biots:" + str(len(biot_List))
          textsurface = myfont.render(outText, True, (0, 0, 255)) #render
       # --- Wrap-up
-      clock.tick(60)			   # Limit to 60 frames per second
+      clock.tick(40)			   # Limit to 60 frames per second
       screen.blit(textsurface,(0,0))  #Draw text
       pygame.display.flip() 	# update the screen with what we've drawn.
    #End While
