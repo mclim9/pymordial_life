@@ -16,9 +16,10 @@ ScrHeight = 700
 BiotMinSize = 40
 BiotMaxSize = 60
 elasticity = 1.0
-MaxSpeed = 4
-LegSegs = 6
-StartEnergy = 400
+MaxSpeed = 5
+LegSegs = 5
+StartEnergy = 400 #Biot Start Energy
+CCost = 40        #Collision Cost
 
 ########################################################################
 ### Code Begin
@@ -146,8 +147,14 @@ def collide(p1, p2):
       p2.y += math.cos(angle)
       #p1.angleRot += .6
       #p2.angleRot += .6
-      p1.energy -= 40
-      p2.energy -= 40
+      
+      ### Energy Calt
+      p1.energy += CCost if p1.colorOut == RED else 0
+      p2.energy += CCost if p2.colorOut == RED else 0
+      p1.energy += 0.5*CCost if p1.colorOut == WHITE else 0
+      p2.energy += 0.5*CCost if p2.colorOut == WHITE else 0
+      p1.energy -= CCost
+      p2.energy -= CCost
       
 
 def findBiot(biots, x, y):
@@ -203,11 +210,11 @@ def main():
                MaxSpeed -= 1
             else:
                pass
-         elif event.type == pygame.MOUSEBUTTONDOWN:
-            (mouseX, mouseY) = pygame.mouse.get_pos()
-            selected_biot = findBiot(biot_List, mouseX, mouseY)
-         elif event.type == pygame.MOUSEBUTTONUP:
-            selected_biot = None
+        # elif event.type == pygame.MOUSEBUTTONDOWN:
+        #    (mouseX, mouseY) = pygame.mouse.get_pos()
+        #    selected_biot = findBiot(biot_List, mouseX, mouseY)
+        # elif event.type == pygame.MOUSEBUTTONUP:
+        #    selected_biot = None
          else:
             pass
             
@@ -216,10 +223,11 @@ def main():
       ################################################################
       for i, CurrBiot in enumerate(biot_List):
          CurrBiot.energyCalc()
-         if CurrBiot.energy > 1000:
-            CurrBiot.energy = StartEnergy
+         if CurrBiot.energy > 10*StartEnergy:
+            CurrBiot.energy =  2*StartEnergy
             BabyBiot = copy.copy(CurrBiot)
-            BabyBiot.x += 40
+            BabyBiot.angleMove = -CurrBiot.angleMove
+            BabyBiot.x += 2.5 * CurrBiot.size
             biot_List.append(BabyBiot)
          if CurrBiot.energy < 0:
             del biot_List[i]
