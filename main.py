@@ -11,12 +11,14 @@
 ########################################################################
 ### User Inputs
 ########################################################################
-ScrWid = 1280
-ScrHeight = 800
-BALL_SIZE = 25
+ScrWid = 1200
+ScrHeight = 700
+BiotMinSize = 40
+BiotMaxSize = 60
 elasticity = 1.0
 MaxSpeed = 4
 LegSegs = 6
+StartEnergy = 400
 
 ########################################################################
 ### Code Begin
@@ -41,10 +43,10 @@ Colors = [RED,GREEN,GREEN,BLUE,WHITE]
 class Biot:    
    ###Class to keep track of a ball's location and vector.
    def __init__(self):
-      self.root = random.randint(40,60)
+      self.root = random.randint(BiotMinSize,BiotMaxSize)
       self.x = random.randrange(self.root, ScrWid - self.root)
       self.y = random.randrange(self.root, ScrHeight - self.root)
-      self.energy = 200
+      self.energy = StartEnergy
       #		self.speed = random.randrange(1, 3)
       self.speed = 3
       self.angleMove = random.uniform(0, math.pi*2)
@@ -59,6 +61,7 @@ class Biot:
          self.color.append(random.choice(Colors))
       
       ### Calc Biot true size
+      self.colorOut = BLACK
       self.size = 0
       stopX = self.x
       stopY = self.y
@@ -69,7 +72,8 @@ class Biot:
          stopY = startY + self.root/LegSegs * math.cos(self.angleRot + self.angleSeg[j] + (2*math.pi*i)/self.symmetry)
          hypot = math.hypot(self.x-stopX,self.y-stopY)
          if hypot > self.size:
-            self.size = hypot
+            self.size = hypot                #Largest distance from center.
+            self.colorOut = self.color[j]    #Color of outer most segment
 
    def move(self):
       self.x += int(math.sin(self.angleMove) * self.speed)
@@ -94,7 +98,7 @@ class Biot:
          
    def draw(self, screen):
       self.angleRot += 0.03
-      #pygame.draw.circle(screen, self.color[LegSegs-1], [int(self.x),int(self.y)], int(self.size), 1)
+      #pygame.draw.circle(screen, self.colorOut, [int(self.x),int(self.y)], int(self.size), 1)
       for i in range(0,self.symmetry):          #Draw Leg
          stopX = self.x
          stopY = self.y
@@ -140,8 +144,8 @@ def collide(p1, p2):
       p1.y -= math.cos(angle)
       p2.x -= math.sin(angle)
       p2.y += math.cos(angle)
-      p1.angleRot += .6
-      p2.angleRot += .6
+      #p1.angleRot += .6
+      #p2.angleRot += .6
       p1.energy -= 40
       p2.energy -= 40
       
@@ -158,8 +162,8 @@ def findBiot(biots, x, y):
 def main():
    pygame.init()
    size = [ScrWid, ScrHeight]
-   #screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
-   screen = pygame.display.set_mode(size)
+   screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
+   #screen = pygame.display.set_mode(size)
    pygame.display.set_caption("Pymordial Life")
    done = False
    selected_biot = None
@@ -172,7 +176,7 @@ def main():
    myfont = pygame.font.SysFont('Courier', 24)
 
    biot_List = []
-   for i in range(0,50):
+   for i in range(0,70):
       biot_List.append(Biot())
 
    ####################################################################
@@ -213,7 +217,7 @@ def main():
       for i, CurrBiot in enumerate(biot_List):
          CurrBiot.energyCalc()
          if CurrBiot.energy > 1000:
-            CurrBiot.energy = 200
+            CurrBiot.energy = StartEnergy
             BabyBiot = copy.copy(CurrBiot)
             BabyBiot.x += 40
             biot_List.append(BabyBiot)
@@ -225,12 +229,12 @@ def main():
          CurrBiot.bounce()
          for Biot2 in biot_List[i+1:]:
             collide(CurrBiot, Biot2)
-      if selected_biot:
-         (mouseX, mouseY) = pygame.mouse.get_pos()
-         dx = mouseX - selected_biot.x
-         dy = mouseY - selected_biot.y
-         selected_biot.angle = 0.5*math.pi + math.atan2(dy, dx)
-         selected_biot.speed = math.hypot(dx, dy) * 0.1
+     # if selected_biot:
+     #    (mouseX, mouseY) = pygame.mouse.get_pos()
+     #    dx = mouseX - selected_biot.x
+     #    dy = mouseY - selected_biot.y
+     #    selected_biot.angle = 0.5*math.pi + math.atan2(dy, dx)
+     #    selected_biot.speed = math.hypot(dx, dy) * 0.1
          
       ################################################################
       ### Drawing Code
@@ -241,7 +245,7 @@ def main():
          outText = "Biots:" + str(len(biot_List))
          textsurface = myfont.render(outText, True, (0, 0, 255)) #render
       # --- Wrap-up
-      clock.tick(40)			   # Limit to 60 frames per second
+      clock.tick(30)			   # Limit to 60 frames per second
       screen.blit(textsurface,(0,0))  #Draw text
       pygame.display.flip() 	# update the screen with what we've drawn.
    #End While
