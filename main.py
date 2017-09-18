@@ -112,13 +112,9 @@ class Biot:
 
    def energyCalc(self):
       for j in range(0,LegSegs):
-         if self.color[j] == GREEN:
-            self.energy += 2
-         elif self.color[j] == RED:
-            self.energy -= 1
-         elif self.color[j] == BLUE:
-            self.energy -= 1
-      
+         self.energy += 2 if self.color[j] == GREEN else 0
+         self.energy -= 1 if self.color[j] == RED else 0
+         self.energy -= 1 if self.color[j] == BLUE else 0   
             
 def collide(p1, p2):
    dx = p1.x - p2.x
@@ -148,13 +144,13 @@ def collide(p1, p2):
       #p1.angleRot += .6
       #p2.angleRot += .6
       
-      ### Energy Calt
+      ### Energy Calc
       p1.energy += CCost if p1.colorOut == RED else 0
       p2.energy += CCost if p2.colorOut == RED else 0
       p1.energy += 0.5*CCost if p1.colorOut == WHITE else 0
       p2.energy += 0.5*CCost if p2.colorOut == WHITE else 0
-      p1.energy -= CCost
-      p2.energy -= CCost
+      p1.energy -= (CCost + 10)
+      p2.energy -= (CCost + 10)
       
 
 def findBiot(biots, x, y):
@@ -168,6 +164,7 @@ def findBiot(biots, x, y):
 ########################################################################
 def main():
    pygame.init()
+   pygame.mouse.set_visible(False)
    size = [ScrWid, ScrHeight]
    screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
    #screen = pygame.display.set_mode(size)
@@ -183,7 +180,7 @@ def main():
    myfont = pygame.font.SysFont('Courier', 24)
 
    biot_List = []
-   for i in range(0,70):
+   for i in range(0,65):
       biot_List.append(Biot())
 
    ####################################################################
@@ -193,6 +190,7 @@ def main():
       ################################################################
       ### Event Processing
       ################################################################
+      pygame.mouse.set_visible(False)
       for event in pygame.event.get():
          if event.type == pygame.QUIT:
             done = True
@@ -203,13 +201,10 @@ def main():
                del biot_List[0]
             elif (event.key == pygame.K_q) or (event.key == pygame.K_ESCAPE):
                done = True
-            elif event.key == pygame.K_UP:
-               #MaxSpeed += 1
-               print MaxSpeed
-            elif event.key == pygame.K_DOWN:
-               MaxSpeed -= 1
             else:
                pass
+         elif event.type == pygame.MOUSEMOTION:
+               pygame.mouse.set_visible(True)
         # elif event.type == pygame.MOUSEBUTTONDOWN:
         #    (mouseX, mouseY) = pygame.mouse.get_pos()
         #    selected_biot = findBiot(biot_List, mouseX, mouseY)
