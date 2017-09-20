@@ -137,8 +137,9 @@ class Biot:
    def energyCalc(self):
       for j in range(0,LegSegs):
          self.energy += 2 if self.color[j] == GREEN else 0
-         self.energy -= 1 if self.color[j] == RED else 0
-         self.energy -= 1 if self.color[j] == BLUE else 0   
+         self.energy -= 1 if self.color[j] == RED   else 0
+         self.energy -= 1 if self.color[j] == BLUE  else 0   
+         self.energy -= 0 if self.color[j] == WHITE else 0   
             
 def collide(p1, p2):
    dx = p1.x - p2.x
