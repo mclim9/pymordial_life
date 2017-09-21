@@ -1,42 +1,3 @@
-########################################################################
-### Python based physics simulation based on
-### Jason Spafford's Primordial Life Screensaver
-########################################################################
-###
-### Date: 2017.09.11
-### Author: Martin C Lim
-### Version: 0.1
-### Description: Biots float in a petri dish.  Each organism is composed
-###   of several segmented legs.  Colors define function:
-###   -Green Generates energy
-###   -Red   Takes energy from others
-###   -Blue  Pro
-###   -White Sheild
-###
-### Links: 
-###   http://programarcadegames.com/
-###   http://simpson.edu/computer-science/
-###   http://www.petercollingridge.co.uk/book/export/html/6
-###
-### Special thanks to Peter Collingridge at:
-###   http://www.petercollingridge.co.uk/
-########################################################################
-### User Inputs
-########################################################################
-ScrWid = 1200
-ScrHeight = 700
-BiotMinSize = 40
-BiotMaxSize = 60
-elasticity = 1.0  #Biot bounce speed increase
-MaxSpeed = 5      #Maximum biot speed.
-LegSegs = 5       #Number of leg segments
-StartEnergy = 400 #Biot Start Energy
-CCost = 40        #Collision Cost
-
-########################################################################
-### Code Begin
-########################################################################
-import pygame
 import random
 import math
 import copy 		#for objects
@@ -44,12 +5,16 @@ import copy 		#for objects
 ########################################################################
 ### Define colors
 ########################################################################
+BiotMinSize = 40
+BiotMaxSize = 60
+
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE  = (0,0,255)
 Colors = [RED,GREEN,GREEN,BLUE,WHITE]
+
 ########################################################################
 ### Definitions
 ########################################################################
@@ -140,7 +105,8 @@ class Biot:
          self.energy -= 1 if self.color[j] == RED   else 0
          self.energy -= 1 if self.color[j] == BLUE  else 0   
          self.energy -= 0 if self.color[j] == WHITE else 0   
-            
+
+
 def collide(p1, p2):
    dx = p1.x - p2.x
    dy = p1.y - p2.y
@@ -181,102 +147,3 @@ def findBiot(biots, x, y):
         if math.hypot(p.x-x, p.y-y) <= p.size:
             return p
     return None
-    
-########################################################################
-### Main Code
-########################################################################
-def main():
-   pygame.init()
-   pygame.mouse.set_visible(False)
-   size = [ScrWid, ScrHeight]
-   screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
-   #screen = pygame.display.set_mode(size)
-   pygame.display.set_caption("Pymordial Life")
-   done = False
-   selected_biot = None
-   clock = pygame.time.Clock()    # Manage screen updates
-
-   ####################################################################
-   ### Font
-   ####################################################################
-   pygame.font.init() # you have to call this at the start, 
-   myfont = pygame.font.SysFont('Courier', 24)
-
-   biot_List = []
-   for i in range(0,100):
-      biot_List.append(Biot())
-
-   ####################################################################
-   ### Main Code
-   ####################################################################
-   while not done:
-      ################################################################
-      ### Event Processing
-      ################################################################
-      pygame.mouse.set_visible(False)
-      for event in pygame.event.get():
-         if event.type == pygame.QUIT:
-            done = True
-         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:	 # Space bar! Spawn a new ball.
-               biot_List.append(Biot())
-            elif event.key == pygame.K_d:
-               del biot_List[0]
-            elif (event.key == pygame.K_q) or (event.key == pygame.K_ESCAPE):
-               done = True
-            else:
-               pass
-         elif event.type == pygame.MOUSEMOTION:
-               pygame.mouse.set_visible(True)
-        # elif event.type == pygame.MOUSEBUTTONDOWN:
-        #    (mouseX, mouseY) = pygame.mouse.get_pos()
-        #    selected_biot = findBiot(biot_List, mouseX, mouseY)
-        # elif event.type == pygame.MOUSEBUTTONUP:
-        #    selected_biot = None
-         else:
-            pass
-            
-      ################################################################
-      ### Game Logic
-      ################################################################
-      for i, CurrBiot in enumerate(biot_List):
-         CurrBiot.energyCalc()
-         if CurrBiot.energy > 10*StartEnergy:
-            CurrBiot.energy =  2*StartEnergy
-            BabyBiot = copy.copy(CurrBiot)
-            BabyBiot.angleMove = -CurrBiot.angleMove
-            BabyBiot.x += 2.5 * CurrBiot.size
-            biot_List.append(BabyBiot)
-         if CurrBiot.energy < 0:
-            del biot_List[i]
-            pass
-            
-         CurrBiot.move()
-         CurrBiot.bounce()
-         for Biot2 in biot_List[i+1:]:
-            collide(CurrBiot, Biot2)
-            pass
-     # if selected_biot:
-     #    (mouseX, mouseY) = pygame.mouse.get_pos()
-     #    dx = mouseX - selected_biot.x
-     #    dy = mouseY - selected_biot.y
-     #    selected_biot.angle = 0.5*math.pi + math.atan2(dy, dx)
-     #    selected_biot.speed = math.hypot(dx, dy) * 0.1
-         
-      ################################################################
-      ### Drawing Code
-      ################################################################
-      screen.fill(BLACK)      # Set the screen background
-      for ball in biot_List:
-         ball.draw(screen)
-         outText = "Biots:" + str(len(biot_List))
-         textsurface = myfont.render(outText, True, (0, 0, 255)) #render
-      # --- Wrap-up
-      clock.tick(30)			   # Limit to 60 frames per second
-      screen.blit(textsurface,(0,0))  #Draw text
-      pygame.display.flip() 	# update the screen with what we've drawn.
-   #End While
-   pygame.quit()
- 
-if __name__ == "__main__":
-    main()

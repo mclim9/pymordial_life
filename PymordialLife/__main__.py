@@ -15,7 +15,7 @@
 ###
 ### Links: 
 ###   http://programarcadegames.com/
-###   http://simpson.edu/computer-science/
+###   http://simpson.edu/computer-science/c
 ###   http://www.petercollingridge.co.uk/book/export/html/6
 ###
 ### Special thanks to Peter Collingridge at:
@@ -37,10 +37,11 @@ CCost = 40        #Collision Cost
 ### Code Begin
 ########################################################################
 import pygame
+#from biots import *
 import random
 import math
 import copy 		#for objects
-
+import pickle     #Object saving
 ########################################################################
 ### Define colors
 ########################################################################
@@ -50,6 +51,7 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE  = (0,0,255)
 Colors = [RED,GREEN,GREEN,BLUE,WHITE]
+
 ########################################################################
 ### Definitions
 ########################################################################
@@ -79,8 +81,6 @@ class Biot:
       self.segSize = self.root/LegSegs
       
       ### PreCalc Biot Leg coordinates.
-      #self.BodyMatX = [[0 for x in range(self.symmetry)] for y in range(LegSegs)] 
-      #self.BodyMatY = [[0 for x in range(self.symmetry)] for y in range(LegSegs)] 
       self.BodyMatX = [[0 for x in range(LegSegs)] for y in range(self.symmetry)] 
       self.BodyMatY = [[0 for x in range(LegSegs)] for y in range(self.symmetry)] 
       for i in range(0,self.symmetry):          #Draw Leg
@@ -140,7 +140,8 @@ class Biot:
          self.energy -= 1 if self.color[j] == RED   else 0
          self.energy -= 1 if self.color[j] == BLUE  else 0   
          self.energy -= 0 if self.color[j] == WHITE else 0   
-            
+
+
 def collide(p1, p2):
    dx = p1.x - p2.x
    dy = p1.y - p2.y
@@ -181,7 +182,20 @@ def findBiot(biots, x, y):
         if math.hypot(p.x-x, p.y-y) <= p.size:
             return p
     return None
-    
+
+def saveBiots(data):
+   with open("biot.dat", "wb") as f:
+      pickle.dump(data, f)
+
+def loadBiots():
+   try:
+      with open("biots.dat") as f:
+         data = pickle.load(f)
+   except:
+      data = [Biot() for i in range(0,100)]
+      print "No Data"
+   return data
+   
 ########################################################################
 ### Main Code
 ########################################################################
@@ -189,8 +203,8 @@ def main():
    pygame.init()
    pygame.mouse.set_visible(False)
    size = [ScrWid, ScrHeight]
-   screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
-   #screen = pygame.display.set_mode(size)
+   #screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
+   screen = pygame.display.set_mode(size)
    pygame.display.set_caption("Pymordial Life")
    done = False
    selected_biot = None
@@ -202,9 +216,9 @@ def main():
    pygame.font.init() # you have to call this at the start, 
    myfont = pygame.font.SysFont('Courier', 24)
 
-   biot_List = []
-   for i in range(0,100):
-      biot_List.append(Biot())
+   #biot_List = [Biot() for i in range(0,100)]
+   biot_list = []
+   biot_List = loadBiots()
 
    ####################################################################
    ### Main Code
@@ -213,7 +227,7 @@ def main():
       ################################################################
       ### Event Processing
       ################################################################
-      pygame.mouse.set_visible(False)
+      #pygame.mouse.set_visible(False)
       for event in pygame.event.get():
          if event.type == pygame.QUIT:
             done = True
@@ -223,9 +237,8 @@ def main():
             elif event.key == pygame.K_d:
                del biot_List[0]
             elif (event.key == pygame.K_q) or (event.key == pygame.K_ESCAPE):
+               saveBiots(biot_List)
                done = True
-            else:
-               pass
          elif event.type == pygame.MOUSEMOTION:
                pygame.mouse.set_visible(True)
         # elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -249,13 +262,11 @@ def main():
             biot_List.append(BabyBiot)
          if CurrBiot.energy < 0:
             del biot_List[i]
-            pass
             
          CurrBiot.move()
          CurrBiot.bounce()
          for Biot2 in biot_List[i+1:]:
             collide(CurrBiot, Biot2)
-            pass
      # if selected_biot:
      #    (mouseX, mouseY) = pygame.mouse.get_pos()
      #    dx = mouseX - selected_biot.x
