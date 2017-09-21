@@ -148,7 +148,7 @@ def collide(p1, p2):
       #p1.angleRot += .6
       #p2.angleRot += .6
       
-      ### Energy Calt
+      ### Energy Calc
       p1.energy += CCost if p1.colorOut == RED else 0
       p2.energy += CCost if p2.colorOut == RED else 0
       p1.energy += 0.5*CCost if p1.colorOut == WHITE else 0
