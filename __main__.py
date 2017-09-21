@@ -1,13 +1,25 @@
-"""
- This example shows having multiple balls bouncing around the screen at the
- same time. You can hit the space bar to spawn more balls.
- 
- Sample Python/Pygame Programs
- Simpson College Computer Science
- http://programarcadegames.com/
- http://simpson.edu/computer-science/
- http://www.petercollingridge.co.uk/book/export/html/6
-"""
+########################################################################
+### Python based physics simulation based on
+### Jason Spafford's Primordial Life Screensaver
+########################################################################
+###
+### Date: 2017.09.11
+### Author: Martin C Lim
+### Version: 0.1
+### Description: Biots float in a petri dish.  Each organism is composed
+###   of several segmented legs.  Colors define function:
+###   -Green Generates energy
+###   -Red   Takes energy from others
+###   -Blue  Pro
+###   -White Sheild
+###
+### Links: 
+###   http://programarcadegames.com/
+###   http://simpson.edu/computer-science/
+###   http://www.petercollingridge.co.uk/book/export/html/6
+###
+### Special thanks to Peter Collingridge at:
+###   http://www.petercollingridge.co.uk/
 ########################################################################
 ### User Inputs
 ########################################################################
@@ -15,9 +27,9 @@ ScrWid = 1200
 ScrHeight = 700
 BiotMinSize = 40
 BiotMaxSize = 60
-elasticity = 1.0
-MaxSpeed = 5
-LegSegs = 5
+elasticity = 1.0  #Biot bounce speed increase
+MaxSpeed = 5      #Maximum biot speed.
+LegSegs = 5       #Number of leg segments
 StartEnergy = 400 #Biot Start Energy
 CCost = 40        #Collision Cost
 
@@ -64,17 +76,28 @@ class Biot:
       ### Calc Biot true size
       self.colorOut = BLACK
       self.size = 0
-      stopX = self.x
-      stopY = self.y
-      for j in range(0,LegSegs):             #Draw Leg Segment
-         startX = stopX                      #Start at last point
-         startY = stopY                      #Start at last point
-         stopX = startX + self.root/LegSegs * math.sin(self.angleRot + self.angleSeg[j] + (2*math.pi*i)/self.symmetry)
-         stopY = startY + self.root/LegSegs * math.cos(self.angleRot + self.angleSeg[j] + (2*math.pi*i)/self.symmetry)
-         hypot = math.hypot(self.x-stopX,self.y-stopY)
-         if hypot > self.size:
-            self.size = hypot                #Largest distance from center.
-            self.colorOut = self.color[j]    #Color of outer most segment
+      self.segSize = self.root/LegSegs
+      
+      ### PreCalc Biot Leg coordinates.
+      #self.BodyMatX = [[0 for x in range(self.symmetry)] for y in range(LegSegs)] 
+      #self.BodyMatY = [[0 for x in range(self.symmetry)] for y in range(LegSegs)] 
+      self.BodyMatX = [[0 for x in range(LegSegs)] for y in range(self.symmetry)] 
+      self.BodyMatY = [[0 for x in range(LegSegs)] for y in range(self.symmetry)] 
+      for i in range(0,self.symmetry):          #Draw Leg
+         stopX = self.x
+         stopY = self.y
+         legAngle = self.angleRot + (2*math.pi*i)/self.symmetry
+         for j in range(0,LegSegs):             #Draw Leg Segment
+            startX = stopX                      #Start at last point
+            startY = stopY                      #Start at last point
+            self.BodyMatX[i][j] = self.segSize * math.sin(legAngle + self.angleSeg[j])
+            self.BodyMatY[i][j] = self.segSize * math.cos(legAngle + self.angleSeg[j])
+            stopX = startX + self.BodyMatX[i][j]
+            stopY = startY + self.BodyMatY[i][j] 
+            hypot = math.hypot(self.x-stopX,self.y-stopY)
+            if hypot > self.size:
+               self.size = hypot                #Largest distance from center.
+               self.colorOut = self.color[j]    #Color of outer most segment
 
    def move(self):
       self.x += int(math.sin(self.angleMove) * self.speed)
@@ -98,7 +121,8 @@ class Biot:
          self.angleMove = math.pi - self.angleMove
          
    def draw(self, screen):
-      self.angleRot += 0.03
+      self.angleRot += 0.03 if self.angleRot > 6.28318 else -6.28318
+      
       #pygame.draw.circle(screen, self.colorOut, [int(self.x),int(self.y)], int(self.size), 1)
       for i in range(0,self.symmetry):          #Draw Leg
          stopX = self.x
@@ -106,19 +130,16 @@ class Biot:
          for j in range(0,LegSegs):             #Draw Leg Segment
             startX = stopX                      #Start at last point
             startY = stopY                      #Start at last point
-            stopX = (startX + self.root/LegSegs * math.sin(self.angleRot + self.angleSeg[j] + (2*math.pi*i)/self.symmetry))
-            stopY = (startY + self.root/LegSegs * math.cos(self.angleRot + self.angleSeg[j] + (2*math.pi*i)/self.symmetry))
+            stopX = startX + self.BodyMatX[i][j]
+            stopY = startY + self.BodyMatY[i][j]
             pygame.draw.aalines(screen, self.color[j], False, [(startX, startY), (stopX, stopY)], 2)
 
    def energyCalc(self):
       for j in range(0,LegSegs):
-         if self.color[j] == GREEN:
-            self.energy += 2
-         elif self.color[j] == RED:
-            self.energy -= 1
-         elif self.color[j] == BLUE:
-            self.energy -= 1
-      
+         self.energy += 2 if self.color[j] == GREEN else 0
+         self.energy -= 1 if self.color[j] == RED   else 0
+         self.energy -= 1 if self.color[j] == BLUE  else 0   
+         self.energy -= 0 if self.color[j] == WHITE else 0   
             
 def collide(p1, p2):
    dx = p1.x - p2.x
@@ -133,11 +154,9 @@ def collide(p1, p2):
       angle2 = 2*tangent - p2.angleMove
       speed1 = p2.speed*elasticity
       speed2 = p1.speed*elasticity
-      if speed1 > MaxSpeed:
-         speed1 = MaxSpeed
-      if speed2 > MaxSpeed:
-         speed1 = MaxSpeed
-
+      speed1 = MaxSpeed if speed1 > MaxSpeed else speed1
+      speed2 = MaxSpeed if speed2 > MaxSpeed else speed2
+         
       (p1.angleMove, p1.speed) = (angle1, speed1)
       (p2.angleMove, p2.speed) = (angle2, speed2)
 
@@ -148,13 +167,13 @@ def collide(p1, p2):
       #p1.angleRot += .6
       #p2.angleRot += .6
       
-      ### Energy Calt
+      ### Energy Calc
       p1.energy += CCost if p1.colorOut == RED else 0
       p2.energy += CCost if p2.colorOut == RED else 0
       p1.energy += 0.5*CCost if p1.colorOut == WHITE else 0
       p2.energy += 0.5*CCost if p2.colorOut == WHITE else 0
-      p1.energy -= CCost
-      p2.energy -= CCost
+      p1.energy -= (CCost + 10)
+      p2.energy -= (CCost + 10)
       
 
 def findBiot(biots, x, y):
@@ -168,6 +187,7 @@ def findBiot(biots, x, y):
 ########################################################################
 def main():
    pygame.init()
+   pygame.mouse.set_visible(False)
    size = [ScrWid, ScrHeight]
    screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
    #screen = pygame.display.set_mode(size)
@@ -183,7 +203,7 @@ def main():
    myfont = pygame.font.SysFont('Courier', 24)
 
    biot_List = []
-   for i in range(0,70):
+   for i in range(0,100):
       biot_List.append(Biot())
 
    ####################################################################
@@ -193,6 +213,7 @@ def main():
       ################################################################
       ### Event Processing
       ################################################################
+      pygame.mouse.set_visible(False)
       for event in pygame.event.get():
          if event.type == pygame.QUIT:
             done = True
@@ -203,13 +224,10 @@ def main():
                del biot_List[0]
             elif (event.key == pygame.K_q) or (event.key == pygame.K_ESCAPE):
                done = True
-            elif event.key == pygame.K_UP:
-               #MaxSpeed += 1
-               print MaxSpeed
-            elif event.key == pygame.K_DOWN:
-               MaxSpeed -= 1
             else:
                pass
+         elif event.type == pygame.MOUSEMOTION:
+               pygame.mouse.set_visible(True)
         # elif event.type == pygame.MOUSEBUTTONDOWN:
         #    (mouseX, mouseY) = pygame.mouse.get_pos()
         #    selected_biot = findBiot(biot_List, mouseX, mouseY)
@@ -237,6 +255,7 @@ def main():
          CurrBiot.bounce()
          for Biot2 in biot_List[i+1:]:
             collide(CurrBiot, Biot2)
+            pass
      # if selected_biot:
      #    (mouseX, mouseY) = pygame.mouse.get_pos()
      #    dx = mouseX - selected_biot.x
