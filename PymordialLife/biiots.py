@@ -28,7 +28,7 @@ ScrHeight = 700
 BiotMinSize = 40
 BiotMaxSize = 60
 elasticity = 1.0  #Biot bounce speed increase
-MaxSpeed = 5      #Maximum biot speed.
+MaxSpeed = 4      #Maximum biot speed.
 LegSegs = 5       #Number of leg segments
 StartEnergy = 400 #Biot Start Energy
 CCost = 40        #Collision Cost
@@ -133,13 +133,13 @@ class Biot:
          for j in range(0,LegSegs):             #Draw Leg Segment
             startX = stopX                      #Start at last point
             startY = stopY                      #Start at last point
-            if 1:
+            if 0:
                stopX = startX + self.BodyMatX[i][j]
                stopY = startY + self.BodyMatY[i][j]
             else:
                stopX = startX + self.segSize * math.sin(legAngle + self.angleSeg[j])
                stopY = startY + self.segSize * math.cos(legAngle + self.angleSeg[j])
-            pygame.draw.aalines(screen, self.color[j], False, [(startX, startY), (stopX, stopY)], 2)
+            pygame.draw.aalines(screen, self.color[j], False, [(startX, startY), (stopX, stopY)], 1)
       #print "draw Elapsed time: " + str(time.time()-startTime)
       
    def energyCalc(self):
@@ -274,10 +274,8 @@ def main():
             
          CurrBiot.move()
          CurrBiot.bounce()
-         startTime = time.time()
          for Biot2 in biot_List[i+1:]:
             collide(CurrBiot, Biot2)
-         print "collide Elapsed time: " + str(time.time()-startTime)
      # if selected_biot:
      #    (mouseX, mouseY) = pygame.mouse.get_pos()
      #    dx = mouseX - selected_biot.x
