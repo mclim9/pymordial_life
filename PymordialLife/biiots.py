@@ -54,6 +54,11 @@ GREEN = (0, 255, 0)
 BLUE  = (0,0,255)
 Colors = [RED,GREEN,GREEN,BLUE,WHITE]
 
+from pygame.locals import *
+#flags = FULLSCREEN | DOUBLEBUF
+flags = DOUBLEBUF
+#screen = pygame.display.set_mode(resolution, flags, bpp)
+
 ########################################################################
 ### Definitions
 ########################################################################
@@ -124,7 +129,7 @@ class Biot:
          
    def draw(self, screen):
       self.angleRot -= (0.03 if self.angleRot > 6.28318 else -6.28318)
-      startTime = time.time()
+      #startTime = time.time()
       #pygame.draw.circle(screen, self.colorOut, [int(self.x),int(self.y)], int(self.size), 1)
       for i in range(0,self.symmetry):          #Draw Leg
          stopX = self.x
@@ -133,13 +138,13 @@ class Biot:
          for j in range(0,LegSegs):             #Draw Leg Segment
             startX = stopX                      #Start at last point
             startY = stopY                      #Start at last point
-            if 0:
+            if 1:
                stopX = startX + self.BodyMatX[i][j]
                stopY = startY + self.BodyMatY[i][j]
             else:
                stopX = startX + self.segSize * math.sin(legAngle + self.angleSeg[j])
                stopY = startY + self.segSize * math.cos(legAngle + self.angleSeg[j])
-            pygame.draw.aalines(screen, self.color[j], False, [(startX, startY), (stopX, stopY)], 1)
+            pygame.draw.lines(screen, self.color[j], False, [(startX, startY), (stopX, stopY)], 1)
       #print "draw Elapsed time: " + str(time.time()-startTime)
       
    def energyCalc(self):
@@ -155,6 +160,7 @@ def collide(p1, p2):
    dy = p1.y - p2.y
 
    dist = math.hypot(dx, dy)
+   #dist = math.sqrt(dx * dx + dy * dy)
    if dist < p1.size + p2.size:
       tangent = math.atan2(dy, dx)
       angle = 0.5 * math.pi + tangent
@@ -201,7 +207,7 @@ def loadBiots():
          print "trying to open"
          data = pickle.load(f)
    except:
-      data = [Biot() for i in range(0,100)]
+      data = [Biot() for i in range(0,200)]
       print "No Data"
    return data
    
@@ -212,8 +218,9 @@ def main():
    pygame.init()
    pygame.mouse.set_visible(False)
    size = [ScrWid, ScrHeight]
-   #screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
-   screen = pygame.display.set_mode(size)
+   screen = pygame.display.set_mode(size,flags)
+   screen.set_alpha(None)
+   
    pygame.display.set_caption("Pymordial Life")
    done = False
    selected_biot = None
@@ -263,7 +270,7 @@ def main():
       ################################################################
       for i, CurrBiot in enumerate(biot_List):
          CurrBiot.energyCalc()
-         if CurrBiot.energy > 10*StartEnergy:
+         if CurrBiot.energy > 5*StartEnergy:
             CurrBiot.energy =  2*StartEnergy
             BabyBiot = copy.copy(CurrBiot)
             BabyBiot.angleMove = -CurrBiot.angleMove
@@ -294,7 +301,7 @@ def main():
       # --- Wrap-up
       clock.tick(25)			   # Limit to 60 frames per second
       screen.blit(textsurface,(0,0))  #Draw text
-      pygame.display.flip() 	# update the screen with what we've drawn.
+      pygame.display.update() 	# update the screen with what we've drawn.
    #End While
    pygame.quit()
  
