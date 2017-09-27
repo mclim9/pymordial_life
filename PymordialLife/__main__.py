@@ -1,3 +1,4 @@
+from __future__ import print_function
 ########################################################################
 ### Python based physics simulation based on
 ### Jason Spafford's Primordial Life Screensaver
@@ -140,7 +141,7 @@ class Biot:
                stopX = startX + self.segSize * math.sin(legAngle + self.angleSeg[j])
                stopY = startY + self.segSize * math.cos(legAngle + self.angleSeg[j])
             pygame.draw.aalines(screen, self.color[j], False, [(startX, startY), (stopX, stopY)], 2)
-      #print "draw Elapsed time: " + str(time.time()-startTime)
+      #print("draw Elapsed time: " + str(time.time()-startTime))
       
    def energyCalc(self):
       for j in range(0,LegSegs):
@@ -198,11 +199,11 @@ def saveBiots(data):
 def loadBiots():
    try:
       with open("biots.dat","rb") as f:
-         print "trying to open"
+         print("trying to open")
          data = pickle.load(f)
    except:
       data = [Biot() for i in range(0,100)]
-      print "No Data"
+      print("No Data")
    return data
    
 ########################################################################
@@ -277,7 +278,7 @@ def main():
          startTime = time.time()
          for Biot2 in biot_List[i+1:]:
             collide(CurrBiot, Biot2)
-         print "collide Elapsed time: " + str(time.time()-startTime)
+         print("collide Elapsed time: " + str(time.time()-startTime))
      # if selected_biot:
      #    (mouseX, mouseY) = pygame.mouse.get_pos()
      #    dx = mouseX - selected_biot.x
