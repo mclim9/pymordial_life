@@ -6,23 +6,23 @@ Description: Petri dish life simulator inspired by Jason Spafford's
    When they don't have enough energy, they die.
    
 Colors define function:
-  -Green Generates energy each cycle
-  -Red   Takes energy from others upon collision
-  -Blue  No action at this time.
-  -White Protects biot from attack.
+  *Green Generates energy each cycle
+  *Red   Takes energy from others upon collision
+  *Blue  No action at this time.
+  *White Protects biot from attack.
 
 Degrees of Freedom: Variables that determine which biots flurish
-   -Energy Cost for each line segment
-   -Collision energy cost.  
+   *Energy Cost for each line segment
+   *Collision energy cost.  
       Helpful for population density control
    
 Developed w/ the help of the following Links: 
-   http://programarcadegames.com/
-   http://simpson.edu/computer-science/
-   http://www.petercollingridge.co.uk/book/export/html/6
+   *http://programarcadegames.com/
+   *http://simpson.edu/computer-science/
+   *http://www.petercollingridge.co.uk/book/export/html/6
 
 Special thanks to Peter Collingridge at:
-   http://www.petercollingridge.co.uk/
+   *http://www.petercollingridge.co.uk/
 
 MacOS Requirements
 ------------------
