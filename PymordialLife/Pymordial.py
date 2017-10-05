@@ -32,7 +32,7 @@ MaxSpeed = 4      #Maximum biot speed.
 LegSegs = 5       #Number of leg segments
 StartEnergy = 400 #Biot Start Energy
 CCost = 40        #Collision Cost
-
+Colli = [0,1,0]
 ########################################################################
 ### Code Begin
 ########################################################################
@@ -230,7 +230,7 @@ def main():
    ### Font
    ####################################################################
    pygame.font.init() # you have to call this at the start, 
-   myfont = pygame.font.SysFont('Courier', 24)
+   myfont = pygame.font.SysFont('Courier', 24, bold=True)
 
    #biot_List = [Biot() for i in range(0,100)]
    biot_list = []
@@ -282,7 +282,8 @@ def main():
          CurrBiot.move()
          CurrBiot.bounce()
          for Biot2 in biot_List[i+1:]:
-            collide(CurrBiot, Biot2)
+            if random.choice(Colli):
+               collide(CurrBiot, Biot2)
      # if selected_biot:
      #    (mouseX, mouseY) = pygame.mouse.get_pos()
      #    dx = mouseX - selected_biot.x
@@ -296,10 +297,10 @@ def main():
       screen.fill(BLACK)      # Set the screen background
       for ball in biot_List:
          ball.draw(screen)
-         outText = "Biots:" + str(len(biot_List))
-         textsurface = myfont.render(outText, True, (0, 0, 255)) #render
+         outText = "Biots:%d FPS:%.2f"%(len(biot_List),clock.get_fps())
+         textsurface = myfont.render(outText, True, (255, 255, 255)) #render
       # --- Wrap-up
-      clock.tick(25)			   # Limit to 60 frames per second
+      clock.tick(60)			   # Limit to 60 frames per second
       screen.blit(textsurface,(0,0))  #Draw text
       pygame.display.update() 	# update the screen with what we've drawn.
    #End While
