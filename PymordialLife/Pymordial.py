@@ -27,6 +27,7 @@ ScrWid = 1200
 ScrHeight = 700
 BiotMinSize = 40
 BiotMaxSize = 60
+BiotRotate = 0
 elasticity = 1.0  #Biot bounce speed increase
 MaxSpeed = 4      #Maximum biot speed.
 LegSegs = 5       #Number of leg segments
@@ -40,7 +41,7 @@ import pygame
 #from biots import *
 import random
 import math
-import copy 		#for objects
+import copy       #for objects
 import pickle     #Object saving
 import time
 
@@ -138,7 +139,7 @@ class Biot:
          for j in range(0,LegSegs):             #Draw Leg Segment
             startX = stopX                      #Start at last point
             startY = stopY                      #Start at last point
-            if 1:
+            if BiotRotate:
                stopX = startX + self.BodyMatX[i][j]
                stopY = startY + self.BodyMatY[i][j]
             else:
@@ -154,14 +155,13 @@ class Biot:
          self.energy -= 1 if self.color[j] == BLUE  else 0   
          self.energy -= 0 if self.color[j] == WHITE else 0   
 
-
 def collide(p1, p2):
    dx = p1.x - p2.x
    dy = p1.y - p2.y
 
    dist = math.hypot(dx, dy)
    #dist = math.sqrt(dx * dx + dy * dy)
-   if dist < p1.size + p2.size:
+   if dist < (p1.size + p2.size):
       tangent = math.atan2(dy, dx)
       angle = 0.5 * math.pi + tangent
 
@@ -179,8 +179,8 @@ def collide(p1, p2):
       p1.y -= math.cos(angle)
       p2.x -= math.sin(angle)
       p2.y += math.cos(angle)
-      #p1.angleRot += .6
-      #p2.angleRot += .6
+      p1.angleRot += .3
+      p2.angleRot += .3
       
       ### Energy Calc
       p1.energy += CCost if p1.colorOut == RED else 0
