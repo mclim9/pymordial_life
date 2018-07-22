@@ -204,11 +204,11 @@ def saveBiots(data):
 def loadBiots():
    try:
       with open("biots.dat","rb") as f:
-         print "trying to open"
+         print("trying to open")
          data = pickle.load(f)
    except:
       data = [Biot() for i in range(0,200)]
-      print "No Data"
+      print("No Data")
    return data
    
 ########################################################################
