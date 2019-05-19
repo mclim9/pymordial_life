@@ -1,7 +1,7 @@
-########################################################################
+################################################################################
 ### Python based physics simulation based on
 ### Jason Spafford's Primordial Life Screensaver
-########################################################################
+################################################################################
 ###
 ### Date: 2017.09.11
 ### Author: Martin C Lim
@@ -20,9 +20,9 @@
 ###
 ### Special thanks to Peter Collingridge at:
 ###   http://www.petercollingridge.co.uk/
-########################################################################
+################################################################################
 ### User Inputs
-########################################################################
+################################################################################
 ScrWid = 1200
 ScrHeight = 700
 BiotMinSize = 40
@@ -34,9 +34,10 @@ LegSegs = 5       #Number of leg segments
 StartEnergy = 400 #Biot Start Energy
 CCost = 40        #Collision Cost
 Colli = [0,1,0]
-########################################################################
+
+################################################################################
 ### Code Begin
-########################################################################
+################################################################################
 import pygame
 #from biots import *
 import random
@@ -45,9 +46,9 @@ import copy       #for objects
 import pickle     #Object saving
 import time
 
-########################################################################
+################################################################################
 ### Define colors
-########################################################################
+################################################################################
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
@@ -60,9 +61,9 @@ from pygame.locals import *
 flags = DOUBLEBUF
 #screen = pygame.display.set_mode(resolution, flags, bpp)
 
-########################################################################
+################################################################################
 ### Definitions
-########################################################################
+################################################################################
 class Biot:    
    ###Class to keep track of a ball's location and vector.
    def __init__(self):
@@ -98,8 +99,8 @@ class Biot:
          for j in range(0,LegSegs):             #Draw Leg Segment
             startX = stopX                      #Start at last point
             startY = stopY                      #Start at last point
-            self.BodyMatX[i][j] = self.segSize * math.sin(legAngle + self.angleSeg[j])
-            self.BodyMatY[i][j] = self.segSize * math.cos(legAngle + self.angleSeg[j])
+            self.BodyMatX[i][j] = self.segSize * sin(int(legAngle + self.angleSeg[j]))
+            self.BodyMatY[i][j] = self.segSize * cos(int(legAngle + self.angleSeg[j]))
             stopX = startX + self.BodyMatX[i][j]
             stopY = startY + self.BodyMatY[i][j] 
             hypot = math.hypot(self.x-stopX,self.y-stopY)
@@ -175,10 +176,10 @@ def collide(p1, p2):
       (p1.angleMove, p1.speed) = (angle1, speed1)
       (p2.angleMove, p2.speed) = (angle2, speed2)
 
-      p1.x += math.sin(angle)
-      p1.y -= math.cos(angle)
-      p2.x -= math.sin(angle)
-      p2.y += math.cos(angle)
+      p1.x += sin(int(angle))
+      p1.y -= cos(int(angle))
+      p2.x -= sin(int(angle))
+      p2.y += cos(int(angle))
       p1.angleRot += .3
       p2.angleRot += .3
       
@@ -190,7 +191,13 @@ def collide(p1, p2):
       p1.energy -= (CCost + 10)
       p2.energy -= (CCost + 10)
       
+def sin(angle):
+   math.sin(angle)
+   
 
+def cos(angle):
+   math.cos(angle)
+   
 def findBiot(biots, x, y):
     for p in biots:
         if math.hypot(p.x-x, p.y-y) <= p.size:
@@ -198,7 +205,7 @@ def findBiot(biots, x, y):
     return None
 
 def saveBiots(data):
-   with open("biot.dat", "wb") as f:
+   with open("biot.dat" , "wb") as f:
       pickle.dump(data, f)
 
 def loadBiots():
@@ -211,9 +218,9 @@ def loadBiots():
       print("No Data")
    return data
    
-########################################################################
+################################################################################
 ### Main Code
-########################################################################
+################################################################################
 def main():
    pygame.init()
    pygame.mouse.set_visible(False)
@@ -226,9 +233,9 @@ def main():
    selected_biot = None
    clock = pygame.time.Clock()    # Manage screen updates
 
-   ####################################################################
+   #############################################################################
    ### Font
-   ####################################################################
+   #############################################################################
    pygame.font.init() # you have to call this at the start, 
    myfont = pygame.font.SysFont('Courier', 24, bold=True)
 
@@ -236,13 +243,13 @@ def main():
    biot_list = []
    biot_List = loadBiots()
 
-   ####################################################################
+   #############################################################################
    ### Main Code
-   ####################################################################
+   #############################################################################
    while not done:
-      ################################################################
+      ##########################################################################
       ### Event Processing
-      ################################################################
+      ##########################################################################
       #pygame.mouse.set_visible(False)
       for event in pygame.event.get():
          if event.type == pygame.QUIT:
@@ -265,9 +272,9 @@ def main():
          else:
             pass
             
-      ################################################################
+      ##########################################################################
       ### Game Logic
-      ################################################################
+      ##########################################################################
       for i, CurrBiot in enumerate(biot_List):
          CurrBiot.energyCalc()
          if CurrBiot.energy > 5*StartEnergy:
@@ -291,9 +298,9 @@ def main():
      #    selected_biot.angle = 0.5*math.pi + math.atan2(dy, dx)
      #    selected_biot.speed = math.hypot(dx, dy) * 0.1
          
-      ################################################################
+      ##########################################################################
       ### Drawing Code
-      ################################################################
+      ##########################################################################
       screen.fill(BLACK)      # Set the screen background
       for ball in biot_List:
          ball.draw(screen)
