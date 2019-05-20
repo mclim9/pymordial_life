@@ -14,7 +14,7 @@
 ###
 ### Links: 
 ###     http://programarcadegames.com/
-###     http://simpson.edu/computer-science/c
+###     http://simpson.edu/computer-science/c   
 ###     http://www.petercollingridge.co.uk/book/export/html/6
 ###
 ### Special thanks to Peter Collingridge at:
@@ -23,7 +23,7 @@
 ### User Inputs
 ################################################################################
 ScrWid      = 1200
-ScrHeight   = 700
+ScrHeight   = 800
 BiotMinSize = 40
 BiotMaxSize = 60
 BiotRotate  = 0         # Do Biots rotate upon collision?
