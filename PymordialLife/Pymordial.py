@@ -15,7 +15,7 @@
 ### Links: 
 ###     http://programarcadegames.com/
 ###     http://simpson.edu/computer-science/c   
-###     http://www.petercollingridge.co.uk/book/export/html/6
+###     http://www.petercollingridge.co.uk/tutorials/pygame-physics-simulation/
 ###
 ### Special thanks to Peter Collingridge at:
 ###     http://www.petercollingridge.co.uk/
