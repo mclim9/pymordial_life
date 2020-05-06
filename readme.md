@@ -17,12 +17,12 @@ Degrees of Freedom: Variables that determine which biots flurish
       Helpful for population density control
    
 Developed w/ the help of the following Links: 
-   *http://programarcadegames.com/
-   *http://simpson.edu/computer-science/
-   *http://www.petercollingridge.co.uk/book/export/html/6
+- http://programarcadegames.com/
+- http://simpson.edu/computer-science/
+- http://www.petercollingridge.co.uk/book/export/html/6
 
 Special thanks to Peter Collingridge at:
-   *http://www.petercollingridge.co.uk/
+- http://www.petercollingridge.co.uk/
 
 MacOS Requirements
 ------------------
