@@ -45,15 +45,15 @@ class Biot:      # Class to keep track of a ball's location and vector.
         for i in range(0,self.symmetry):                    # Draw Leg
            stopX = self.x
            stopY = self.y
-           legAngle = self.angleRot + (2*math.pi*i)/self.symmetry
-           for j in range(0,LegSegs):                       # Draw Leg Segment
+           legAngle = self.angleRot + (2 * math.pi * i)/self.symmetry
+           for j in range(0, LegSegs):                      # Draw Leg Segment
                 startX = stopX                              # Start at last point
                 startY = stopY                              # Start at last point
                 self.BodyMatX[i][j] = self.segSize * math.sin(legAngle + self.angleSeg[j])
                 self.BodyMatY[i][j] = self.segSize * math.cos(legAngle + self.angleSeg[j])
                 stopX = startX + self.BodyMatX[i][j]
-                stopY = startY + self.BodyMatY[i][j] 
-                hypot = math.hypot(self.x-stopX,self.y-stopY)
+                stopY = startY + self.BodyMatY[i][j]
+                hypot = math.hypot(self.x-stopX,self.y - stopY)
                 if hypot > self.size:
                     self.size = hypot                       # Largest distance from center.
                     self.colorOut = self.color[j]           # Color of outer most segment
@@ -138,6 +138,6 @@ def collide(p1, p2):
 
 def findBiot(biots, x, y):
     for p in biots:
-        if math.hypot(p.x-x, p.y-y) <= p.size:
+        if math.hypot(p.x - x, p.y - y) <= p.size:
             return p
     return None
