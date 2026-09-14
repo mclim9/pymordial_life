@@ -1,10 +1,10 @@
 Pymordial Life
 ==============
-Description: Petri dish life simulator inspired by Jason Spafford's 
-- Primordial Life screensaver/program.  Biots float in a petri dish.  
+Description: Petri dish life simulator inspired by Jason Spafford's
+- Primordial Life screensaver/program.  Biots float in a petri dish.
 - When they gather enough energy they reproduce.
 - When they don't have enough energy, they die.
-   
+
 Colors define function:
 - Green Generates energy each cycle
 - Red   Takes energy from others upon collision
@@ -15,8 +15,8 @@ Degrees of Freedom: Variables that determine which biots flurish
 - Energy Cost for each line segment
 - Collision energy cost.  
       Helpful for population density control
-   
-Developed w/ the help of the following Links: 
+
+Developed w/ the help of the following Links:
 - http://programarcadegames.com/
 - http://simpson.edu/computer-science/
 - http://www.petercollingridge.co.uk/book/export/html/6

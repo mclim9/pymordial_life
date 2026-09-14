@@ -1,27 +1,9 @@
-################################################################################
-### Python based physics simulation based on
-### Jason Spafford's Primordial Life Screensaver
-################################################################################
-### Date: 2017.09.11
-### Author: Martin C Lim
-### Version: 0.1
-### Description: Biots float in a petri dish.  
 ###     Leg Colors definition:
 ###     -Green Generates energy
 ###     -Red   Takes energy from others
 ###     -Blue  Pro
-###     -White Sheild
-###
-### Links: 
-###     http://programarcadegames.com/
-###     http://simpson.edu/computer-science/c   
-###     http://www.petercollingridge.co.uk/tutorials/pygame-physics-simulation/
-###
-### Special thanks to Peter Collingridge at:
-###     http://www.petercollingridge.co.uk/
-################################################################################
-### User Inputs
-################################################################################
+###     -White shields from energy loss
+
 ScrWid      = 1200
 ScrHeight   = 800
 BiotMinSize = 40
@@ -32,7 +14,7 @@ MaxSpeed    = 4         # Maximum biot speed.
 LegSegs     = 5         # Number of leg segments
 StartEnergy = 400       # Biot Start Energy
 CCost       = 20        # Collision Cost
-Colli       = [0,1,1]   # Calculate Collision Frequency
+Colli       = [0, 1, 1] # Calculate Collision Frequency
 DrawCircle  = 0         # Draw Circle or Legs
 COLLISION_CELL = max(BiotMaxSize * 2, 80)
 
@@ -56,8 +38,8 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
-BLUE  = (0,0,255)
-Colors = [RED,GREEN,GREEN,BLUE,WHITE]
+BLUE  = (0, 0, 255)
+Colors = [RED, GREEN, GREEN, BLUE, WHITE]
 
 from pygame.locals import DOUBLEBUF, FULLSCREEN
 # flags = FULLSCREEN | DOUBLEBUF
@@ -67,10 +49,9 @@ flags = DOUBLEBUF
 ################################################################################
 ### Definitions
 ################################################################################
-class Biot:     
-    ###Class to keep track of a ball's location and vector.
+class Biot: # Class to keep track of a ball's location and vector.
     def __init__(self):
-        self.root       = random.randint(BiotMinSize,BiotMaxSize)
+        self.root       = random.randint(BiotMinSize, BiotMaxSize)
         self.x          = random.randrange(self.root, ScrWid - self.root)
         self.y          = random.randrange(self.root, ScrHeight - self.root)
         self.energy     = StartEnergy
@@ -96,21 +77,21 @@ class Biot:
         ### PreCalc Biot Leg coordinates.
         self.BodyMatX = [[0 for x in range(LegSegs)] for y in range(self.symmetry)] 
         self.BodyMatY = [[0 for x in range(LegSegs)] for y in range(self.symmetry)] 
-        for i in range(0,self.symmetry):                #Draw Leg
+        for i in range(0, self.symmetry):               # Draw Leg
             stopX = self.x
             stopY = self.y
             legAngle = self.angleRot + (2*math.pi*i)/self.symmetry
-            for j in range(0,LegSegs):                  #Draw Leg Segment
-                startX = stopX                          #Start at last point
-                startY = stopY                          #Start at last point
+            for j in range(0, LegSegs):                 # Draw Leg Segment
+                startX = stopX                          # Start at last point
+                startY = stopY                          # Start at last point
                 self.BodyMatX[i][j] = self.segSize * sin(round(legAngle + self.angleSeg[j],2))
                 self.BodyMatY[i][j] = self.segSize * cos(round(legAngle + self.angleSeg[j],2))
                 stopX = startX + self.BodyMatX[i][j]
-                stopY = startY + self.BodyMatY[i][j] 
-                hypot = math.hypot(self.x-stopX,self.y-stopY)
+                stopY = startY + self.BodyMatY[i][j]
+                hypot = math.hypot(self.x - stopX, self.y - stopY)
                 if hypot > self.size:
-                    self.size = hypot                   #Largest distance from center.
-                    self.colorOut = self.color[j]       #Color of outer most segment
+                    self.size = hypot                   # Largest distance from center.
+                    self.colorOut = self.color[j]       # Color of outer most segment
 
     def move(self):
         self.x += int(sin(rnd(self.angleMove)) * self.speed)
@@ -122,15 +103,15 @@ class Biot:
             self.angleMove = -self.angleMove
 
         elif self.x < self.size:
-            self.x = 2*self.size - self.x
+            self.x = 2 * self.size - self.x
             self.angleMove = -self.angleMove
 
         if self.y > ScrHeight - self.size:
-            self.y = 2*(ScrHeight - self.size) - self.y
+            self.y = 2 * (ScrHeight - self.size) - self.y
             self.angleMove = math.pi - self.angleMove
 
         elif self.y < self.size:
-            self.y = 2*self.size - self.y
+            self.y = 2 * self.size - self.y
             self.angleMove = math.pi - self.angleMove
 
     def draw(self, screen):
@@ -141,8 +122,8 @@ class Biot:
             for i in range(0,self.symmetry):                # Draw Leg
                 stopX = self.x
                 stopY = self.y
-                legAngle = self.angleRot + (2*3.14159*i)/self.symmetry
-                for j in range(0,LegSegs):                 # Draw Leg Segment
+                legAngle = self.angleRot + (2 * 3.14159 * i)/self.symmetry
+                for j in range(0, LegSegs):                # Draw Leg Segment
                     startX = stopX                         # Start at last point
                     startY = stopY                         # Start at last point
                     if BiotRotate:
@@ -167,18 +148,18 @@ def collide(p1, p2):
     dy = p1.y - p2.y
 
     dist = math.hypot(dx, dy)
-    #dist = math.sqrt(dx * dx + dy * dy)
+    # dist = math.sqrt(dx * dx + dy * dy)
     if dist < (p1.size + p2.size):                      # Collision
         tangent = math.atan2(dy, dx)                    # Calc new angle
         angle = 0.5 * math.pi + tangent
 
-        angle1 = 2*tangent - p1.angleMove
-        angle2 = 2*tangent - p2.angleMove
-        speed1 = p2.speed*elasticity
-        speed2 = p1.speed*elasticity
+        angle1 = 2 * tangent - p1.angleMove
+        angle2 = 2 * tangent - p2.angleMove
+        speed1 = p2.speed * elasticity
+        speed2 = p1.speed * elasticity
         speed1 = MaxSpeed if speed1 > MaxSpeed else speed1
         speed2 = MaxSpeed if speed2 > MaxSpeed else speed2
-            
+
         (p1.angleMove, p1.speed) = (angle1, speed1)
         (p2.angleMove, p2.speed) = (angle2, speed2)
 
@@ -227,10 +208,7 @@ def loadBiots():
         data = [Biot() for i in range(0,200)]
         print("No Data")
     return data
-    
-################################################################################
-### Main Code
-################################################################################
+
 def main():
     pygame.init()
     pygame.mouse.set_visible(False)
@@ -246,10 +224,10 @@ def main():
     #############################################################################
     ### Font
     #############################################################################
-    pygame.font.init() # you have to call this at the start, 
+    pygame.font.init() # you have to call this at the start
     myfont = pygame.font.SysFont('Courier', 24, bold=True)
 
-    #biot_List = [Biot() for i in range(0,100)]
+    # biot_List = [Biot() for i in range(0,100)]
     biot_list = []
     biot_List = loadBiots()
 
@@ -281,7 +259,7 @@ def main():
           #     selected_biot = None
             else:
                 pass
-                
+
         #######################################################################
         ### Game Logic
         #######################################################################
@@ -325,7 +303,6 @@ def main():
       #     dy = mouseY - selected_biot.y
       #     selected_biot.angle = 0.5*math.pi + math.atan2(dy, dx)
       #     selected_biot.speed = math.hypot(dx, dy) * 0.1
-            
         #######################################################################
         ### Drawing Code
         #######################################################################
@@ -338,8 +315,8 @@ def main():
         clock.tick(30)                  # Limit to 30 frames per second
         screen.blit(textsurface,(0,0))  # Draw text
         pygame.display.update()         # update the screen with what we've drawn.
-    #End While
+    # End While
     pygame.quit()
- 
+
 if __name__ == "__main__":
      main()
