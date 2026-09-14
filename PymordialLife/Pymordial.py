@@ -34,6 +34,7 @@ StartEnergy = 400       # Biot Start Energy
 CCost       = 20        # Collision Cost
 Colli       = [0,1,1]   # Calculate Collision Frequency
 DrawCircle  = 0         # Draw Circle or Legs
+COLLISION_CELL = max(BiotMaxSize * 2, 80)
 
 maxsin = 0
 maxcos = 0
@@ -284,6 +285,11 @@ def main():
         #######################################################################
         ### Game Logic
         #######################################################################
+        collision_grid = {}
+        for biot in biot_List:
+            key = (int(biot.x // COLLISION_CELL), int(biot.y // COLLISION_CELL))
+            collision_grid.setdefault(key, []).append(biot)
+
         for i, CurrBiot in enumerate(biot_List):
             # CurrBiot.energyCalc()
             CurrBiot.energy += CurrBiot.energyTurn
@@ -298,9 +304,21 @@ def main():
 
             CurrBiot.move()
             CurrBiot.bounce()
-            for Biot2 in biot_List[i+1:]:
-                # if random.choice(Colli):
-                collide(CurrBiot, Biot2)
+
+            cell_x = int(CurrBiot.x // COLLISION_CELL)
+            cell_y = int(CurrBiot.y // COLLISION_CELL)
+            for dx in (-1, 0, 1):
+                for dy in (-1, 0, 1):
+                    for Biot2 in collision_grid.get((cell_x + dx, cell_y + dy), ()):
+                        if Biot2 is CurrBiot:
+                            continue
+                        if id(Biot2) < id(CurrBiot):
+                            continue
+                        if abs(Biot2.x - CurrBiot.x) > CurrBiot.size + Biot2.size:
+                            continue
+                        if abs(Biot2.y - CurrBiot.y) > CurrBiot.size + Biot2.size:
+                            continue
+                        collide(CurrBiot, Biot2)
       # if selected_biot:
       #     (mouseX, mouseY) = pygame.mouse.get_pos()
       #     dx = mouseX - selected_biot.x
@@ -314,10 +332,10 @@ def main():
         screen.fill(BLACK)              # Set the screen background
         for ball in biot_List:
             ball.draw(screen)
-            outText = "Biots:%d FPS:%.2f"%(len(biot_List),clock.get_fps())
-            textsurface = myfont.render(outText, True, (255, 255, 255)) #render
+        outText = "Biots:%d FPS:%.2f" % (len(biot_List), clock.get_fps())
+        textsurface = myfont.render(outText, True, (255, 255, 255))
         # Wrap-up
-        clock.tick(60)                  # Limit to 60 frames per second
+        clock.tick(30)                  # Limit to 30 frames per second
         screen.blit(textsurface,(0,0))  # Draw text
         pygame.display.update()         # update the screen with what we've drawn.
     #End While
